@@ -3,26 +3,35 @@ version: '3.8'
 services:
   backend:
     build:
-      context: .
-      dockerfile: backend/Dockerfile
-    container_name: backend_container
+      context: ../backend/backend
+      dockerfile: Dockerfile
+    image: backend:v2.0
+    volumes:
+      - data_volume:/app
+    networks:
+      - app-network
     ports:
       - "8000:8000"
-    volumes:
-      - ./data:/app/data
-    restart: unless-stopped
-    environment:
-      - PYTHONUNBUFFERED=1
+    restart: always
 
   frontend:
     build:
-      context: .
-      dockerfile: frontend/Dockerfile
-    container_name: frontend_container
+      context: ../frontend/frontend
+      dockerfile: Dockerfile
+    image: frontend:v2.0
     ports:
-      - "5173:5173"
+      - "3000:3000"
+    networks:
+      - app-network
+    restart: always
     depends_on:
       - backend
-    restart: unless-stopped
     environment:
       - VITE_API_URL=http://localhost:8000
+
+volumes:
+  data_volume:
+
+networks:
+  app-network:
+    driver: bridge
